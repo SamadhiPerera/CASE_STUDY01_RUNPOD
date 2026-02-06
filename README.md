@@ -15,6 +15,7 @@ The FLUX model has been pre-trained on converting text to an image, and it can b
 This project has the following structure:
 
 CASE_STUDY01/
+
 ├── handler.py          # Serves as a request handler for serverless processing
 ├── requirements.txt    # Contains all required Python libraries
 ├── Dockerfile          # Defines Docker image
@@ -42,4 +43,5 @@ To build image:
 docker build -t /flux-runpod .
 
 To push image:
+
 docker push /flux-runpod
