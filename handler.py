@@ -3,23 +3,15 @@ import torch
 import base64
 from io import BytesIO
 from diffusers import FluxPipeline
-import os
 
-pipe = None
-
-def load_model():
-    global pipe
-    if pipe is None:
-        pipe = FluxPipeline.from_pretrained(
-            "black-forest-labs/FLUX.1-dev",
-            torch_dtype=torch.bfloat16,
-            token=os.environ.get("HF_TOKEN")
-        )
-        pipe.to("cuda")
+pipe = FluxPipeline.from_pretrained(
+    "black-forest-labs/FLUX.1-dev",
+    torch_dtype=torch.float16,
+    use_auth_token=True  # <-- IMPORTANT
+)
+pipe.to("cuda")
 
 def handler(event):
-    load_model()
-
     prompt = event["input"].get("prompt", "A beautiful landscape")
 
     image = pipe(
@@ -32,9 +24,7 @@ def handler(event):
     image.save(buffered, format="PNG")
 
     return {
-        "image_base64": base64.b64encode(
-            buffered.getvalue()
-        ).decode("utf-8")
+        "image_base64": base64.b64encode(buffered.getvalue()).decode()
     }
 
 runpod.serverless.start({"handler": handler})
