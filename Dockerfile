@@ -7,5 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY handler.py .
 
+ENV PYTHONUNBUFFERED=1
 
-CMD ["python", "handler.py"]
+CMD ["python", "-u", "handler.py"]
+
