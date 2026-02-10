@@ -1,16 +1,32 @@
 import runpod
-import time
+import torch
 
-print("🔥 Container started")
+pipe = None  # global cache
+
+def load_model():
+    global pipe
+    if pipe is None:
+        print("🔄 Loading model...")
+        from diffusers import FluxPipeline
+        pipe = FluxPipeline.from_pretrained(
+            "black-forest-labs/FLUX.1-dev",
+            torch_dtype=torch.float16
+        ).to("cuda")
+        print("✅ Model loaded")
 
 def handler(event):
-    print("📥 Event received:", event)
-    return {"status": "ok"}
+    load_model()
 
-runpod.serverless.start({"handler": handler})
+    prompt = event["input"].get("prompt", "a beautiful landscape")
+    image = pipe(prompt).images[0]
 
-print("✅ RunPod server started")
+    image.save("/tmp/output.png")
 
-# KEEP PROCESS ALIVE (important test)
-while True:
-    time.sleep(60)
+    return {
+        "status": "success",
+        "message": "Image generated"
+    }
+
+runpod.serverless.start({
+    "handler": handler
+})
